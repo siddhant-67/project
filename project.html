@@ -1,284 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Virtual Lab - Composite Function</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Tahoma,sans-serif}
-body{background:#f4f7fb;color:#263238;line-height:1.6}
-header{background:linear-gradient(135deg,#2c3e50,#1a2530);color:white;padding:20px}
-.header{max-width:1200px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:20px}
-.logo h1{font-size:28px}.logo span{color:#3498db}
-.container{max-width:1200px;margin:30px auto;padding:0 20px}
-.content{background:white;border-radius:10px;padding:28px;box-shadow:0 6px 20px #0001}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:25px 0}
-.card{background:#f8f9fa;border:2px solid transparent;border-radius:8px;padding:18px;text-align:center;cursor:pointer}
-.card.active,.card:hover{border-color:#3498db;background:#eaf5ff}
-.section{display:none}.section.active{display:block}
-h2{color:#2c3e50;margin-bottom:8px}h3{color:#2c3e50;margin:18px 0 10px}
-.grid{display:grid;grid-template-columns:330px 1fr;gap:22px}
-.panel{background:#f8f9fa;border-radius:8px;padding:18px;border:1px solid #e1e7ef}
-label{font-weight:700;font-size:14px;margin-top:10px;display:block}
-input,select,button{width:100%;padding:10px;margin-top:6px;border-radius:6px;border:1px solid #cfd8e3;font-size:15px}
-button{background:#3498db;color:white;border:none;font-weight:700;cursor:pointer;margin-top:15px}
-button:hover{background:#2878ad}
-.result{font-family:Consolas,monospace;background:white;padding:10px;border-radius:6px;margin:8px 0;overflow-wrap:anywhere}
-table{width:100%;border-collapse:collapse;margin-top:10px;background:white}
-td,th{border-bottom:1px solid #ddd;padding:9px;text-align:left}
-.plots{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:18px}
-canvas{width:100%;aspect-ratio:1;border:1px solid #ddd;border-radius:8px;background:#eef2f7}
-.plot{text-align:center;font-weight:700;color:#51606f}
-.error{color:#c0392b;font-weight:700;margin-top:10px}
-footer{text-align:center;color:#7f8c8d;padding:25px}
-@media(max-width:850px){.grid{grid-template-columns:1fr}.header{flex-direction:column;text-align:center}}
-</style>
-</head>
-<body>
-
-<header>
-  <div class="header">
-    <div class="logo">
-      <h1>Virtual <span>Labs</span></h1>
-      <p>Applied Sciences & Humanities</p>
-    </div>
-    <div>Welcome, Student</div>
-  </div>
-</header>
-
-<div class="container">
-  <main class="content">
-    <h2>A Virtual Lab on Composite Function</h2>
-    <p>Engineering Mathematics Experiment: Partial differentiation of composite functions.</p>
-
-    <div class="cards">
-      <div class="card active" onclick="showSection('aim',this)">Aim</div>
-      <div class="card" onclick="showSection('theory',this)">Theory</div>
-      <div class="card" onclick="showSection('pretest',this)">Pretest</div>
-      <div class="card" onclick="showSection('simulation',this)">Simulation</div>
-      <div class="card" onclick="showSection('posttest',this)">Posttest</div>
-      <div class="card" onclick="showSection('references',this)">References</div>
-    </div>
-
-    <section id="aim" class="section active">
-      <h3>Aim</h3>
-      <p>To study partial differentiation of composite functions using the chain rule and verify the results numerically.</p>
-    </section>
-
-    <section id="theory" class="section">
-      <h3>Theory</h3>
-      <p>If <b>f = f(u,v)</b>, where <b>u = g(x,y)</b> and <b>v = h(x,y)</b>, then:</p>
-      <div class="result">df/dx = df/du · du/dx + df/dv · dv/dx</div>
-      <div class="result">df/dy = df/du · du/dy + df/dv · dv/dy</div>
-    </section>
-
-    <section id="pretest" class="section">
-      <h3>Pretest</h3>
-      <p>1. What is the chain rule for two independent variables?</p>
-      <p>2. If u = x² + y, what is du/dx?</p>
-    </section>
-
-    <section id="simulation" class="section">
-      <h3>Running Simulation</h3>
-
-      <div class="grid">
-        <div class="panel">
-          <label>Preset</label>
-          <select id="preset"></select>
-
-          <label>f(u,v)</label>
-          <input id="fExpr" value="u^3 + v^2">
-
-          <label>u = g(x,y)</label>
-          <input id="uExpr" value="x^2 + y">
-
-          <label>v = h(x,y)</label>
-          <input id="vExpr" value="x*sin(y)">
-
-          <label>x value</label>
-          <input id="xVal" type="number" step="0.1" value="1.5">
-
-          <label>y value</label>
-          <input id="yVal" type="number" step="0.1" value="0.8">
-
-          <button onclick="solve()">Run Simulation</button>
-          <div id="err" class="error"></div>
-        </div>
-
-        <div class="panel">
-          <h3>Step-by-step Chain Rule</h3>
-          <div id="steps"></div>
-
-          <h3>Final Results</h3>
-          <div id="final"></div>
-
-          <h3>Numerical Verification</h3>
-          <table>
-            <tbody id="numeric"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <h3>Surface Plots</h3>
-      <div class="plots">
-        <div class="plot"><canvas id="plotF" width="300" height="300"></canvas><p>f(x,y)</p></div>
-        <div class="plot"><canvas id="plotX" width="300" height="300"></canvas><p>df/dx</p></div>
-        <div class="plot"><canvas id="plotY" width="300" height="300"></canvas><p>df/dy</p></div>
-      </div>
-    </section>
-
-    <section id="posttest" class="section">
-      <h3>Posttest</h3>
-      <p>1. Calculate df/dx for f = u² + v², u = x + y, v = xy.</p>
-      <p>2. Why is numerical verification useful?</p>
-    </section>
-
-    <section id="references" class="section">
-      <h3>References</h3>
-      <p>1. Engineering Mathematics textbooks on Partial Differentiation.</p>
-      <p>2. Composite function chain rule and multivariable calculus notes.</p>
-    </section>
-  </main>
-</div>
-
-<footer>
-  Virtual Labs © 2025 | Composite Function Partial Differentiation
-</footer>
-
-<script>
-const presets=[
-["f=u^3+v^2, u=x^2+y, v=x*sin(y)","u^3+v^2","x^2+y","x*sin(y)"],
-["f=exp(u)*cos(v), u=x+y, v=x*y","exp(u)*cos(v)","x+y","x*y"],
-["f=log(u)+v^2, u=x^2+y^2, v=x-y","log(u)+v^2","x^2+y^2","x-y"],
-["f=u/v, u=sin(x), v=cos(y)","u/v","sin(x)","cos(y)"],
-["f=u^2*v, u=x*y, v=x+y^2","u^2*v","x*y","x+y^2"],
-["f=sqrt(u+v), u=x^2, v=y^2","sqrt(u+v)","x^2","y^2"]
-];
-
-const $=id=>document.getElementById(id);
-
-function showSection(id,el){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
-  $(id).classList.add("active");
-  el.classList.add("active");
-  if(id==="simulation") solve();
-}
-
-function init(){
-  $("preset").innerHTML=presets.map((p,i)=>`<option value="${i}">${p[0]}</option>`).join("");
-  $("preset").onchange=()=>{
-    let p=presets[$("preset").value];
-    $("fExpr").value=p[1]; $("uExpr").value=p[2]; $("vExpr").value=p[3];
-    solve();
-  };
-  solve();
-}
-
-function val(expr,x,y){
-  const u=math.evaluate($("uExpr").value,{x,y});
-  const v=math.evaluate($("vExpr").value,{x,y});
-  return math.evaluate(expr,{x,y,u,v});
-}
-
-function directExpr(expr){
-  return expr.replaceAll("u","("+$("uExpr").value+")").replaceAll("v","("+$("vExpr").value+")");
-}
-
-function fmt(n){
-  return Number.isFinite(n)?Number(n).toFixed(6):"undefined";
-}
-
-function solve(){
-  $("err").textContent="";
-  try{
-    const f=$("fExpr").value, u=$("uExpr").value, v=$("vExpr").value;
-    const x=Number($("xVal").value), y=Number($("yVal").value);
-
-    const dfdu=math.derivative(f,"u").toString();
-    const dfdv=math.derivative(f,"v").toString();
-    const dudx=math.derivative(u,"x").toString();
-    const dudy=math.derivative(u,"y").toString();
-    const dvdx=math.derivative(v,"x").toString();
-    const dvdy=math.derivative(v,"y").toString();
-
-    const fx=directExpr(f);
-    const dfdx=math.derivative(fx,"x").toString();
-    const dfdy=math.derivative(fx,"y").toString();
-
-    $("steps").innerHTML=[
-      ["df/du",dfdu],["df/dv",dfdv],["du/dx",dudx],["du/dy",dudy],["dv/dx",dvdx],["dv/dy",dvdy],
-      ["df/dx formula",`(${dfdu})(${dudx}) + (${dfdv})(${dvdx})`],
-      ["df/dy formula",`(${dfdu})(${dudy}) + (${dfdv})(${dvdy})`]
-    ].map(r=>`<div class="result"><b>${r[0]}</b> = ${r[1]}</div>`).join("");
-
-    $("final").innerHTML=
-      `<div class="result"><b>f(x,y)</b> = ${fx}</div>
-       <div class="result"><b>df/dx</b> = ${dfdx}</div>
-       <div class="result"><b>df/dy</b> = ${dfdy}</div>`;
-
-    const h=1e-6;
-    const fxy=(a,b)=>math.evaluate(fx,{x:a,y:b});
-    const symX=math.evaluate(dfdx,{x,y});
-    const symY=math.evaluate(dfdy,{x,y});
-    const numX=(fxy(x+h,y)-fxy(x-h,y))/(2*h);
-    const numY=(fxy(x,y+h)-fxy(x,y-h))/(2*h);
-
-    $("numeric").innerHTML=[
-      ["x",x],["y",y],
-      ["u = g(x,y)",math.evaluate(u,{x,y})],
-      ["v = h(x,y)",math.evaluate(v,{x,y})],
-      ["f(x,y)",fxy(x,y)],
-      ["df/dx symbolic",symX],
-      ["df/dx numeric",numX],
-      ["df/dx error",Math.abs(symX-numX)],
-      ["df/dy symbolic",symY],
-      ["df/dy numeric",numY],
-      ["df/dy error",Math.abs(symY-numY)]
-    ].map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])}</td></tr>`).join("");
-
-    draw("plotF",fx,false);
-    draw("plotX",dfdx,true);
-    draw("plotY",dfdy,true);
-  }catch(e){
-    $("err").textContent=e.message;
-  }
-}
-
-function draw(id,expr,diverging){
-  const c=$(id),ctx=c.getContext("2d"),w=c.width,h=c.height;
-  const img=ctx.createImageData(w,h),vals=[];
-  for(let j=0;j<h;j++){
-    for(let i=0;i<w;i++){
-      const x=-3+6*i/(w-1), y=3-6*j/(h-1);
-      let z=NaN;
-      try{z=math.evaluate(expr,{x,y})}catch(e){}
-      vals.push(Number.isFinite(z)?z:NaN);
-    }
-  }
-  const finite=vals.filter(Number.isFinite).sort((a,b)=>a-b);
-  const lo=finite[Math.floor(finite.length*.02)]??-1;
-  const hi=finite[Math.floor(finite.length*.98)]??1;
-  const scale=Math.max(Math.abs(lo),Math.abs(hi),1e-9);
-
-  vals.forEach((z,k)=>{
-    let t=0.5;
-    if(Number.isFinite(z)){
-      t=diverging ? (Math.max(-scale,Math.min(scale,z))/scale+1)/2
-                  : (Math.max(lo,Math.min(hi,z))-lo)/(hi-lo||1);
-    }
-    const col=diverging?mix([41,98,180],[220,70,90],t):mix([20,120,150],[245,190,70],t);
-    img.data[k*4]=col[0]; img.data[k*4+1]=col[1]; img.data[k*4+2]=col[2]; img.data[k*4+3]=255;
-  });
-  ctx.putImageData(img,0,0);
-}
-
-function mix(a,b,t){
-  return a.map((v,i)=>Math.round(v+(b[i]-v)*t));
-}
-
-init();
-</script>
-</body>
-</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Lab - Composite Function</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f6f8fb;
+            color: #263238;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #243447, #17212c);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .pcce-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-right: 25px;
+            border-right: 2px solid rgba(255, 255, 255, 0.18);
+        }
+        .pcce-logo-img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 8px;
+            background-color: white;
+            padding: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .pcce-logo-text .main {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .pcce-logo-text .sub {
+            font-size: 12px;
+            color: #e3edf7;
+            margin-top: 2px;
+        }
+        .virtual-labs-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .virtual-labs-logo i,
+        .virtual-labs-logo span,
+        .user-info i {
+            color: #4aa3df;
+        }
+        .virtual-labs-logo i {
+            font-size: 32px;
+        }
+        .virtual-labs-logo h1 {
+            font-size: 26px;
+            font-weight: 600;
+        }
