@@ -764,6 +764,29 @@
             return text.trim().replace(/\*\*/g, "^");
         }
 
+        function librariesReady(requirePlotly) {
+            if (typeof math === "undefined") {
+                showError("The math library did not load. Please keep internet connected, then refresh the page.");
+                return false;
+            }
+
+            if (requirePlotly && typeof Plotly === "undefined") {
+                showError("The plotting library did not load. Please keep internet connected, then refresh the page.");
+                return false;
+            }
+
+            return true;
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function formatNode(node) {
             return math.simplify(node).toString({ parenthesis: "keep", implicit: "hide" });
         }
@@ -777,12 +800,13 @@
             return output;
         }
 
-        function makeCard(title, html, full) {
-            return `<div class="result-card ${full ? "full" : ""}"><h4>${title}</h4>${html}</div>`;
+        function makeCard(title, html, full, id) {
+            const idAttribute = id ? ` id="${escapeHtml(id)}"` : "";
+            return `<div${idAttribute} class="result-card ${full ? "full" : ""}"><h4>${escapeHtml(title)}</h4>${html}</div>`;
         }
 
         function resultLine(label, value) {
-            return `<div class="result-line"><strong>${label}</strong> = ${value}</div>`;
+            return `<div class="result-line"><strong>${escapeHtml(label)}</strong> = ${escapeHtml(value)}</div>`;
         }
 
         function showError(message) {
@@ -826,6 +850,7 @@
         function solveComposite() {
             clearError();
             plotArea.innerHTML = "";
+            if (!librariesReady(false)) return;
 
             try {
                 const fExpr = normalizeExpression(fInput.value);
@@ -887,6 +912,7 @@
         function evaluatePoint() {
             if (!currentSolution) solveComposite();
             if (!currentSolution) return;
+            if (!librariesReady(false)) return;
             clearError();
 
             const xv = Number(xValue.value);
@@ -916,33 +942,31 @@
                     <table>
                         <thead><tr><th>Quantity</th><th>Value</th></tr></thead>
                         <tbody>
-                            <tr><td>x</td><td>${fmtNumber(xv)}</td></tr>
-                            <tr><td>y</td><td>${fmtNumber(yv)}</td></tr>
-                            <tr><td>u = g(x,y)</td><td>${fmtNumber(uv)}</td></tr>
-                            <tr><td>v = h(x,y)</td><td>${fmtNumber(vv)}</td></tr>
-                            <tr><td>f(x,y)</td><td>${fmtNumber(fv)}</td></tr>
-                            <tr><td>df/dx symbolic</td><td>${fmtNumber(symFx)}</td></tr>
-                            <tr><td>df/dx numeric</td><td>${fmtNumber(numFx)}</td></tr>
-                            <tr><td>df/dx error</td><td>${fmtNumber(errX)}</td></tr>
-                            <tr><td>df/dy symbolic</td><td>${fmtNumber(symFy)}</td></tr>
-                            <tr><td>df/dy numeric</td><td>${fmtNumber(numFy)}</td></tr>
-                            <tr><td>df/dy error</td><td>${fmtNumber(errY)}</td></tr>
+                            <tr><td>x</td><td>${escapeHtml(fmtNumber(xv))}</td></tr>
+                            <tr><td>y</td><td>${escapeHtml(fmtNumber(yv))}</td></tr>
+                            <tr><td>u = g(x,y)</td><td>${escapeHtml(fmtNumber(uv))}</td></tr>
+                            <tr><td>v = h(x,y)</td><td>${escapeHtml(fmtNumber(vv))}</td></tr>
+                            <tr><td>f(x,y)</td><td>${escapeHtml(fmtNumber(fv))}</td></tr>
+                            <tr><td>df/dx symbolic</td><td>${escapeHtml(fmtNumber(symFx))}</td></tr>
+                            <tr><td>df/dx numeric</td><td>${escapeHtml(fmtNumber(numFx))}</td></tr>
+                            <tr><td>df/dx error</td><td>${escapeHtml(fmtNumber(errX))}</td></tr>
+                            <tr><td>df/dy symbolic</td><td>${escapeHtml(fmtNumber(symFy))}</td></tr>
+                            <tr><td>df/dy numeric</td><td>${escapeHtml(fmtNumber(numFy))}</td></tr>
+                            <tr><td>df/dy error</td><td>${escapeHtml(fmtNumber(errY))}</td></tr>
                         </tbody>
                     </table>
                 </div>`;
 
-            resultsGrid.insertAdjacentHTML("beforeend", makeCard("Numerical Evaluation at Point", table, true));
+            const oldEvaluation = document.getElementById("evaluationCard");
+            if (oldEvaluation) oldEvaluation.remove();
+            resultsGrid.insertAdjacentHTML("beforeend", makeCard("Numerical Evaluation at Point", table, true, "evaluationCard"));
         }
 
         function plotContours() {
             if (!currentSolution) solveComposite();
             if (!currentSolution) return;
             clearError();
-
-            if (typeof Plotly === "undefined") {
-                showError("Plotly could not load. Please connect to the internet or use a local Plotly copy.");
-                return;
-            }
+            if (!librariesReady(true)) return;
 
             const xs = [];
             const ys = [];
