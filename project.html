@@ -1,1083 +1,490 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Lab - Composite Function</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f6f8fb;
-            color: #263238;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        header {
-            background: linear-gradient(135deg, #243447, #17212c);
-            color: white;
-            padding: 15px 0;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
-
-        .pcce-logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding-right: 25px;
-            border-right: 2px solid rgba(255, 255, 255, 0.18);
-        }
-
-        .pcce-logo-img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            border-radius: 8px;
-            background-color: white;
-            padding: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .pcce-logo-text .main {
-            font-size: 20px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .pcce-logo-text .sub {
-            font-size: 12px;
-            color: #e3edf7;
-            margin-top: 2px;
-        }
-
-        .virtual-labs-logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .virtual-labs-logo i,
-        .virtual-labs-logo span,
-        .user-info i {
-            color: #4aa3df;
-        }
-
-        .virtual-labs-logo i {
-            font-size: 32px;
-        }
-
-        .virtual-labs-logo h1 {
-            font-size: 26px;
-            font-weight: 600;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-        }
-
-        .content {
-            max-width: 1200px;
-            margin: 30px auto 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(18, 38, 63, 0.08);
-            padding: 30px;
-            min-height: 620px;
-        }
-
-        .content-header {
-            margin-bottom: 25px;
-            padding-bottom: 18px;
-            border-bottom: 1px solid #e8edf3;
-        }
-
-        .breadcrumb {
-            font-size: 14px;
-            color: #6b7c8f;
-            margin-bottom: 8px;
-        }
-
-        .content-header h2 {
-            font-size: 28px;
-            color: #243447;
-            font-weight: 650;
-        }
-
-        .content-header p {
-            color: #6b7c8f;
-            margin-top: 5px;
-        }
-
-        .aim-sections {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-            gap: 16px;
-            margin-bottom: 30px;
-        }
-
-        .section-card {
-            background-color: #f7f9fc;
-            border-radius: 8px;
-            padding: 18px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.22s ease;
-            border: 2px solid transparent;
-            min-height: 146px;
-        }
-
-        .section-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(18, 38, 63, 0.09);
-            border-color: #4aa3df;
-        }
-
-        .section-card.active {
-            background-color: #eaf5fd;
-            border-color: #4aa3df;
-        }
-
-        .section-card i {
-            font-size: 30px;
-            color: #3498db;
-            margin-bottom: 12px;
-        }
-
-        .section-card h3 {
-            font-size: 18px;
-            margin-bottom: 6px;
-            color: #243447;
-        }
-
-        .section-card p {
-            font-size: 14px;
-            color: #6b7c8f;
-        }
-
-        .panel {
-            display: none;
-            border-top: 1px solid #e8edf3;
-            padding-top: 26px;
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        .panel h3 {
-            color: #243447;
-            font-size: 24px;
-            margin-bottom: 14px;
-        }
-
-        .panel h4 {
-            color: #243447;
-            font-size: 18px;
-            margin: 20px 0 8px;
-        }
-
-        .info-box,
-        .formula-box,
-        .quiz-box,
-        .sim-box {
-            border-radius: 8px;
-            padding: 22px;
-            margin-bottom: 18px;
-        }
-
-        .info-box {
-            background: #f7f9fc;
-            border-left: 5px solid #3498db;
-        }
-
-        .formula-box {
-            background: #eef7f1;
-            border: 1px solid #d5ecd9;
-        }
-
-        .formula {
-            font-family: Consolas, "Courier New", monospace;
-            background: white;
-            border: 1px solid #dfe8ef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 10px;
-            overflow-x: auto;
-        }
-
-        .sim-box {
-            background: #f7f9fc;
-            border: 1px solid #e1e8f0;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        label {
-            font-size: 14px;
-            font-weight: 650;
-            color: #31465a;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            border: 1px solid #cfd9e4;
-            border-radius: 6px;
-            padding: 11px 12px;
-            font-size: 15px;
-            color: #263238;
-            background: white;
-        }
-
-        textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.13);
-        }
-
-        .button-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        button {
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 650;
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            padding: 11px 18px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-
-        .primary-btn {
-            background: linear-gradient(to right, #3498db, #2c80b9);
-            color: white;
-        }
-
-        .secondary-btn {
-            background: #e8edf3;
-            color: #243447;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(18, 38, 63, 0.12);
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-            margin-top: 18px;
-        }
-
-        .result-card {
-            background: white;
-            border: 1px solid #e1e8f0;
-            border-radius: 8px;
-            padding: 16px;
-        }
-
-        .result-card.full {
-            grid-column: 1 / -1;
-        }
-
-        .result-card h4 {
-            margin-top: 0;
-            color: #2c80b9;
-        }
-
-        .result-line {
-            font-family: Consolas, "Courier New", monospace;
-            background: #f7f9fc;
-            border-radius: 6px;
-            padding: 10px;
-            margin: 8px 0;
-            overflow-x: auto;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-            background: white;
-        }
-
-        th,
-        td {
-            border-bottom: 1px solid #e6edf3;
-            text-align: left;
-            padding: 10px;
-            vertical-align: top;
-        }
-
-        th {
-            background: #eef3f8;
-            color: #243447;
-        }
-
-        .plot-area {
-            min-height: 420px;
-            border: 1px solid #e1e8f0;
-            border-radius: 8px;
-            background: white;
-            margin-top: 18px;
-        }
-
-        .quiz-box {
-            background: #f7f9fc;
-            border: 1px solid #e1e8f0;
-        }
-
-        .question {
-            margin-bottom: 18px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e1e8f0;
-        }
-
-        .question:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .question p {
-            font-weight: 650;
-            margin-bottom: 8px;
-        }
-
-        .question label {
-            display: block;
-            font-weight: 400;
-            margin: 7px 0;
-        }
-
-        .question input {
-            width: auto;
-            margin-right: 8px;
-        }
-
-        .score-box {
-            display: none;
-            margin-top: 14px;
-            padding: 14px;
-            border-radius: 6px;
-            background: #eaf5fd;
-            border: 1px solid #cbe5f7;
-            color: #243447;
-            font-weight: 650;
-        }
-
-        .feedback-section {
-            background-color: #eaf5fd;
-            border-radius: 8px;
-            padding: 24px;
-            border: 1px solid #cbe5f7;
-        }
-
-        .feedback-section .field {
-            margin-bottom: 12px;
-        }
-
-        .note {
-            color: #6b7c8f;
-            font-size: 14px;
-            margin-top: 8px;
-        }
-
-        .error {
-            display: none;
-            color: #a83232;
-            background: #fff0f0;
-            border: 1px solid #ffd4d4;
-            border-radius: 6px;
-            padding: 12px;
-            margin-top: 14px;
-        }
-
-        footer {
-            margin-top: 40px;
-            padding: 20px 0;
-            text-align: center;
-            color: #6b7c8f;
-            font-size: 14px;
-            border-top: 1px solid #e8edf3;
-        }
-
-        .footer-logo {
-            display: inline-block;
-            margin: 0 5px;
-            font-weight: bold;
-            color: #243447;
-        }
-
-        @media (max-width: 900px) {
-            .header-container,
-            .logo-section {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .pcce-logo-container {
-                border-right: none;
-                padding-right: 0;
-                border-bottom: 2px solid rgba(255, 255, 255, 0.18);
-                padding-bottom: 18px;
-            }
-
-            .form-grid,
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .content {
-                margin-top: 18px;
-                padding: 18px;
-            }
-
-            .aim-sections {
-                grid-template-columns: 1fr;
-            }
-
-            .pcce-logo-container {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="container header-container">
-            <div class="logo-section">
-                <div class="pcce-logo-container">
-                    <img src="https://raw.githubusercontent.com/dineshkute90/virtual_lab_LAUC/main/pccoe.png"
-                         alt="PCOE Logo"
-                         class="pcce-logo-img"
-                         onerror="this.onerror=null; this.src='https://via.placeholder.com/60x60/243447/ffffff?text=PCOE';">
-                    <div class="pcce-logo-text">
-                        <div class="main">APPLIED SCIENCES &amp; HUMANITIES</div>
-                        <div class="sub">Pimpri Chinchwad College of Engineering</div>
-                    </div>
-                </div>
-
-                <div class="virtual-labs-logo">
-                    <i class="fas fa-flask"></i>
-                    <h1>Virtual <span>Labs</span></h1>
-                </div>
-            </div>
-
-            <div class="user-info">
-                <i class="fas fa-user-circle"></i>
-                <span>Welcome, Student</span>
-            </div>
-        </div>
-    </header>
-
-    <main class="content">
-        <div class="content-header">
-            <div class="breadcrumb">Engineering Mathematics &gt; Composite Function</div>
-            <h2>A Virtual Lab on Partial Differentiation of Composite Functions</h2>
-            <p>Interactive theory, assessment, simulation, numerical verification, and contour visualization.</p>
-        </div>
-
-        <div class="aim-sections" id="sectionCards">
-            <div class="section-card active" data-target="aim"><i class="fas fa-bullseye"></i><h3>Aim</h3><p>Objective of the experiment</p></div>
-            <div class="section-card" data-target="theory"><i class="fas fa-book"></i><h3>Theory</h3><p>Background concepts</p></div>
-            <div class="section-card" data-target="pretest"><i class="fas fa-question-circle"></i><h3>Pretest</h3><p>Pre-experiment assessment</p></div>
-            <div class="section-card" data-target="simulation"><i class="fas fa-desktop"></i><h3>Simulation</h3><p>Interactive simulation</p></div>
-            <div class="section-card" data-target="posttest"><i class="fas fa-clipboard-check"></i><h3>Posttest</h3><p>Post-experiment assessment</p></div>
-            <div class="section-card" data-target="references"><i class="fas fa-book-open"></i><h3>References</h3><p>Further reading materials</p></div>
-            <div class="section-card" data-target="contributors"><i class="fas fa-users"></i><h3>Contributors</h3><p>People involved</p></div>
-            <div class="section-card" data-target="feedback"><i class="fas fa-comment-alt"></i><h3>Feedback</h3><p>Share your experience</p></div>
-        </div>
-
-        <section class="panel active" id="aim">
-            <h3>Aim</h3>
-            <div class="info-box">
-                <p>To understand and verify the chain rule for partial differentiation of a composite function of two variables.</p>
-                <p>The experiment studies functions of the form <strong>f = f(u, v)</strong>, where <strong>u = g(x, y)</strong> and <strong>v = h(x, y)</strong>. Students compute partial derivatives with respect to <strong>x</strong> and <strong>y</strong>, compare symbolic and numerical results, and visualize the behavior of the function and its derivatives.</p>
-            </div>
-        </section>
-
-        <section class="panel" id="theory">
-            <h3>Theory</h3>
-            <div class="info-box">
-                <p>If a function <strong>f</strong> depends on intermediate variables <strong>u</strong> and <strong>v</strong>, and those variables depend on <strong>x</strong> and <strong>y</strong>, then <strong>f</strong> is indirectly a function of <strong>x</strong> and <strong>y</strong>.</p>
-                <p>The chain rule helps us find the rate of change of <strong>f</strong> with respect to <strong>x</strong> and <strong>y</strong> through the intermediate variables.</p>
-            </div>
-            <div class="formula-box">
-                <h4>Composite Function</h4>
-                <div class="formula">f = f(u, v), where u = g(x, y) and v = h(x, y)</div>
-                <h4>Chain Rule Formulae</h4>
-                <div class="formula">df/dx = (df/du)(du/dx) + (df/dv)(dv/dx)</div>
-                <div class="formula">df/dy = (df/du)(du/dy) + (df/dv)(dv/dy)</div>
-            </div>
-            <div class="info-box">
-                <h4>Procedure</h4>
-                <p>1. Choose or enter <strong>f(u, v)</strong>, <strong>u = g(x, y)</strong>, and <strong>v = h(x, y)</strong>.</p>
-                <p>2. Find the six basic partial derivatives: df/du, df/dv, du/dx, du/dy, dv/dx, and dv/dy.</p>
-                <p>3. Substitute these values in the chain rule formula.</p>
-                <p>4. Replace u and v with their expressions in x and y.</p>
-                <p>5. Evaluate at a point and compare with numerical central-difference derivatives.</p>
-            </div>
-        </section>
-
-        <section class="panel" id="pretest">
-            <h3>Pretest</h3>
-            <div class="quiz-box" data-quiz="pretest">
-                <div class="question" data-answer="b">
-                    <p>1. If f = f(u, v), u = g(x, y), and v = h(x, y), then df/dx equals:</p>
-                    <label><input type="radio" name="pre1" value="a"> (df/du) + (df/dv)</label>
-                    <label><input type="radio" name="pre1" value="b"> (df/du)(du/dx) + (df/dv)(dv/dx)</label>
-                    <label><input type="radio" name="pre1" value="c"> (du/dx) + (dv/dx)</label>
-                </div>
-                <div class="question" data-answer="c">
-                    <p>2. In f(u, v) = u^2 + v^3, df/dv is:</p>
-                    <label><input type="radio" name="pre2" value="a"> 2u</label>
-                    <label><input type="radio" name="pre2" value="b"> 3v</label>
-                    <label><input type="radio" name="pre2" value="c"> 3v^2</label>
-                </div>
-                <div class="question" data-answer="a">
-                    <p>3. If u = x^2 + y, then du/dx is:</p>
-                    <label><input type="radio" name="pre3" value="a"> 2x</label>
-                    <label><input type="radio" name="pre3" value="b"> 1</label>
-                    <label><input type="radio" name="pre3" value="c"> x^2</label>
-                </div>
-                <button class="primary-btn quiz-check"><i class="fas fa-check"></i> Check Score</button>
-                <div class="score-box"></div>
-            </div>
-        </section>
-
-        <section class="panel" id="simulation">
-            <h3>Simulation</h3>
-            <div class="sim-box">
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="presetSelect">Preset examples</label>
-                        <select id="presetSelect">
-                            <option value="0">f=u^3+v^2, u=x^2+y, v=x*sin(y)</option>
-                            <option value="1">f=exp(u)*cos(v), u=x+y, v=x*y</option>
-                            <option value="2">f=log(u)+v^2, u=x^2+y^2, v=x-y</option>
-                            <option value="3">f=u/v, u=sin(x), v=cos(y)</option>
-                            <option value="4">f=u^2*v, u=x*y, v=x+y^2</option>
-                            <option value="5">f=sqrt(u+v), u=x^2, v=y^2</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="xValue">x value</label>
-                        <input id="xValue" type="number" step="any" value="1.5">
-                    </div>
-                    <div class="field">
-                        <label for="yValue">y value</label>
-                        <input id="yValue" type="number" step="any" value="0.8">
-                    </div>
-                </div>
-
-                <div class="form-grid" style="margin-top: 14px;">
-                    <div class="field">
-                        <label for="fInput">f(u, v)</label>
-                        <input id="fInput" value="u^3 + v^2">
-                    </div>
-                    <div class="field">
-                        <label for="uInput">u = g(x, y)</label>
-                        <input id="uInput" value="x^2 + y">
-                    </div>
-                    <div class="field">
-                        <label for="vInput">v = h(x, y)</label>
-                        <input id="vInput" value="x * sin(y)">
-                    </div>
-                </div>
-
-                <p class="note">Use ^ for powers. Supported examples: sin, cos, tan, exp, log, sqrt, abs, pi, e.</p>
-
-                <div class="button-row">
-                    <button class="primary-btn" id="solveBtn"><i class="fas fa-calculator"></i> Solve</button>
-                    <button class="secondary-btn" id="evaluateBtn"><i class="fas fa-list-ol"></i> Evaluate Point</button>
-                    <button class="secondary-btn" id="plotBtn"><i class="fas fa-chart-area"></i> Plot Contours</button>
-                    <button class="secondary-btn" id="clearBtn"><i class="fas fa-rotate-left"></i> Reset</button>
-                </div>
-
-                <div class="error" id="errorBox"></div>
-                <div class="results-grid" id="resultsGrid"></div>
-                <div class="plot-area" id="plotArea"></div>
-            </div>
-        </section>
-
-        <section class="panel" id="posttest">
-            <h3>Posttest</h3>
-            <div class="quiz-box" data-quiz="posttest">
-                <div class="question" data-answer="a">
-                    <p>1. For f = u^3 + v^2, df/du is:</p>
-                    <label><input type="radio" name="post1" value="a"> 3u^2</label>
-                    <label><input type="radio" name="post1" value="b"> u^2</label>
-                    <label><input type="radio" name="post1" value="c"> 2v</label>
-                </div>
-                <div class="question" data-answer="c">
-                    <p>2. If v = x sin(y), then dv/dy is:</p>
-                    <label><input type="radio" name="post2" value="a"> sin(y)</label>
-                    <label><input type="radio" name="post2" value="b"> x cos(x)</label>
-                    <label><input type="radio" name="post2" value="c"> x cos(y)</label>
-                </div>
-                <div class="question" data-answer="b">
-                    <p>3. Numerical verification is useful because it:</p>
-                    <label><input type="radio" name="post3" value="a"> Replaces the chain rule completely</label>
-                    <label><input type="radio" name="post3" value="b"> Checks the symbolic derivative approximately at a point</label>
-                    <label><input type="radio" name="post3" value="c"> Removes the need for substitution</label>
-                </div>
-                <button class="primary-btn quiz-check"><i class="fas fa-check"></i> Check Score</button>
-                <div class="score-box"></div>
-            </div>
-        </section>
-
-        <section class="panel" id="references">
-            <h3>References</h3>
-            <div class="info-box">
-                <p>1. B. S. Grewal, <em>Higher Engineering Mathematics</em>.</p>
-                <p>2. Erwin Kreyszig, <em>Advanced Engineering Mathematics</em>.</p>
-                <p>3. James Stewart, <em>Calculus: Early Transcendentals</em>.</p>
-                <p>4. Thomas and Finney, <em>Calculus and Analytic Geometry</em>.</p>
-            </div>
-        </section>
-
-        <section class="panel" id="contributors">
-            <h3>Contributors</h3>
-            <div class="info-box">
-                <p><strong>Department:</strong> Applied Sciences &amp; Humanities, Pimpri Chinchwad College of Engineering.</p>
-                <p><strong>Experiment:</strong> Virtual Lab on Partial Differentiation of Composite Functions.</p>
-                <p><strong>Development:</strong> HTML, CSS, JavaScript simulation adapted from the supplied Python solver.</p>
-            </div>
-        </section>
-
-        <section class="panel" id="feedback">
-            <h3>Feedback</h3>
-            <div class="feedback-section">
-                <div class="field">
-                    <label for="feedbackName">Name</label>
-                    <input id="feedbackName" placeholder="Enter your name">
-                </div>
-                <div class="field">
-                    <label for="feedbackRating">Rating</label>
-                    <select id="feedbackRating">
-                        <option>Excellent</option>
-                        <option>Good</option>
-                        <option>Average</option>
-                        <option>Needs improvement</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label for="feedbackText">Comments</label>
-                    <textarea id="feedbackText" placeholder="Write your feedback here"></textarea>
-                </div>
-                <button class="primary-btn" id="feedbackBtn"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
-                <p class="note" id="feedbackMessage"></p>
-            </div>
-        </section>
-    </main>
-
-    <footer class="container">
-        <p>Virtual Labs &copy; 2025 | Applied Sciences &amp; Humanities Department |
-            <span class="footer-logo">Pimpri Chinchwad College of Engineering</span>
-        </p>
-    </footer>
-
-    <script>
-        const presets = [
-            { f: "u^3 + v^2", u: "x^2 + y", v: "x * sin(y)" },
-            { f: "exp(u) * cos(v)", u: "x + y", v: "x * y" },
-            { f: "log(u) + v^2", u: "x^2 + y^2", v: "x - y" },
-            { f: "u / v", u: "sin(x)", v: "cos(y)" },
-            { f: "u^2 * v", u: "x * y", v: "x + y^2" },
-            { f: "sqrt(u + v)", u: "x^2", v: "y^2" }
-        ];
-
-        const fInput = document.getElementById("fInput");
-        const uInput = document.getElementById("uInput");
-        const vInput = document.getElementById("vInput");
-        const xValue = document.getElementById("xValue");
-        const yValue = document.getElementById("yValue");
-        const presetSelect = document.getElementById("presetSelect");
-        const resultsGrid = document.getElementById("resultsGrid");
-        const errorBox = document.getElementById("errorBox");
-        const plotArea = document.getElementById("plotArea");
-        let currentSolution = null;
-
-        function normalizeExpression(text) {
-            return text.trim().replace(/\*\*/g, "^");
-        }
-
-        function librariesReady(requirePlotly) {
-            if (typeof math === "undefined") {
-                showError("The math library did not load. Please keep internet connected, then refresh the page.");
-                return false;
-            }
-
-            if (requirePlotly && typeof Plotly === "undefined") {
-                showError("The plotting library did not load. Please keep internet connected, then refresh the page.");
-                return false;
-            }
-
-            return true;
-        }
-
-        function escapeHtml(value) {
-            return String(value)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        function formatNode(node) {
-            return math.simplify(node).toString({ parenthesis: "keep", implicit: "hide" });
-        }
-
-        function substituteExpression(expression, replacements) {
-            let output = expression;
-            Object.keys(replacements).forEach(function(key) {
-                const pattern = new RegExp("\\b" + key + "\\b", "g");
-                output = output.replace(pattern, "(" + replacements[key] + ")");
-            });
-            return output;
-        }
-
-        function makeCard(title, html, full, id) {
-            const idAttribute = id ? ` id="${escapeHtml(id)}"` : "";
-            return `<div${idAttribute} class="result-card ${full ? "full" : ""}"><h4>${escapeHtml(title)}</h4>${html}</div>`;
-        }
-
-        function resultLine(label, value) {
-            return `<div class="result-line"><strong>${escapeHtml(label)}</strong> = ${escapeHtml(value)}</div>`;
-        }
-
-        function showError(message) {
-            errorBox.textContent = message;
-            errorBox.style.display = "block";
-        }
-
-        function clearError() {
-            errorBox.textContent = "";
-            errorBox.style.display = "none";
-        }
-
-        function safeEvaluate(expr, scope) {
-            try {
-                const value = math.evaluate(expr, scope);
-                return Number.isFinite(value) ? value : NaN;
-            } catch (err) {
-                return NaN;
-            }
-        }
-
-        function fmtNumber(value) {
-            if (!Number.isFinite(value)) return "undefined";
-            if (Math.abs(value) >= 100000 || Math.abs(value) < 0.0001 && value !== 0) {
-                return value.toExponential(6);
-            }
-            return value.toFixed(6);
-        }
-
-        function numericalPartial(fn, index, xv, yv, h) {
-            const p1 = [xv, yv];
-            const p2 = [xv, yv];
-            p1[index] += h;
-            p2[index] -= h;
-            const v1 = fn(p1[0], p1[1]);
-            const v2 = fn(p2[0], p2[1]);
-            if (!Number.isFinite(v1) || !Number.isFinite(v2)) return NaN;
-            return (v1 - v2) / (2 * h);
-        }
-
-        function solveComposite() {
-            clearError();
-            plotArea.innerHTML = "";
-            if (!librariesReady(false)) return;
-
-            try {
-                const fExpr = normalizeExpression(fInput.value);
-                const gExpr = normalizeExpression(uInput.value);
-                const hExpr = normalizeExpression(vInput.value);
-
-                math.parse(fExpr);
-                math.parse(gExpr);
-                math.parse(hExpr);
-
-                const dfdu = formatNode(math.derivative(fExpr, "u"));
-                const dfdv = formatNode(math.derivative(fExpr, "v"));
-                const dgdx = formatNode(math.derivative(gExpr, "x"));
-                const dgdy = formatNode(math.derivative(gExpr, "y"));
-                const dhdx = formatNode(math.derivative(hExpr, "x"));
-                const dhdy = formatNode(math.derivative(hExpr, "y"));
-
-                const rawDx = `((${dfdu}) * (${dgdx})) + ((${dfdv}) * (${dhdx}))`;
-                const rawDy = `((${dfdu}) * (${dgdy})) + ((${dfdv}) * (${dhdy}))`;
-                const dfDx = formatNode(math.parse(substituteExpression(rawDx, { u: gExpr, v: hExpr })));
-                const dfDy = formatNode(math.parse(substituteExpression(rawDy, { u: gExpr, v: hExpr })));
-                const fxy = formatNode(math.parse(substituteExpression(fExpr, { u: gExpr, v: hExpr })));
-                const directDx = formatNode(math.derivative(fxy, "x"));
-                const directDy = formatNode(math.derivative(fxy, "y"));
-
-                currentSolution = { fExpr, gExpr, hExpr, dfdu, dfdv, dgdx, dgdy, dhdx, dhdy, rawDx, rawDy, dfDx, dfDy, fxy, directDx, directDy };
-
-                resultsGrid.innerHTML =
-                    makeCard("Functions",
-                        resultLine("f(u,v)", fExpr) +
-                        resultLine("u = g(x,y)", gExpr) +
-                        resultLine("v = h(x,y)", hExpr), false) +
-                    makeCard("Step-by-Step Derivatives",
-                        resultLine("df/du", dfdu) +
-                        resultLine("df/dv", dfdv) +
-                        resultLine("du/dx", dgdx) +
-                        resultLine("du/dy", dgdy) +
-                        resultLine("dv/dx", dhdx) +
-                        resultLine("dv/dy", dhdy), false) +
-                    makeCard("Chain Rule Assembly",
-                        `<div class="result-line">df/dx = (df/du)(du/dx) + (df/dv)(dv/dx)</div>` +
-                        resultLine("df/dx before substitution", rawDx) +
-                        `<div class="result-line">df/dy = (df/du)(du/dy) + (df/dv)(dv/dy)</div>` +
-                        resultLine("df/dy before substitution", rawDy), true) +
-                    makeCard("Final Results",
-                        resultLine("f(x,y)", fxy) +
-                        resultLine("df/dx", dfDx) +
-                        resultLine("df/dy", dfDy), false) +
-                    makeCard("Direct Differentiation Check",
-                        resultLine("direct df/dx", directDx) +
-                        resultLine("direct df/dy", directDy), false);
-            } catch (err) {
-                currentSolution = null;
-                resultsGrid.innerHTML = "";
-                showError("Unable to solve. Please check the expression syntax. Example: use x^2, sin(y), exp(u), log(u), sqrt(u + v).");
-            }
-        }
-
-        function evaluatePoint() {
-            if (!currentSolution) solveComposite();
-            if (!currentSolution) return;
-            if (!librariesReady(false)) return;
-            clearError();
-
-            const xv = Number(xValue.value);
-            const yv = Number(yValue.value);
-            if (!Number.isFinite(xv) || !Number.isFinite(yv)) {
-                showError("Please enter valid numeric values for x and y.");
-                return;
-            }
-
-            const scope = { x: xv, y: yv, pi: Math.PI, e: Math.E };
-            const uv = safeEvaluate(currentSolution.gExpr, scope);
-            const vv = safeEvaluate(currentSolution.hExpr, scope);
-            const fv = safeEvaluate(currentSolution.fxy, scope);
-            const symFx = safeEvaluate(currentSolution.dfDx, scope);
-            const symFy = safeEvaluate(currentSolution.dfDy, scope);
-
-            const fxyFn = function(a, b) {
-                return safeEvaluate(currentSolution.fxy, { x: a, y: b, pi: Math.PI, e: Math.E });
-            };
-            const numFx = numericalPartial(fxyFn, 0, xv, yv, 1e-6);
-            const numFy = numericalPartial(fxyFn, 1, xv, yv, 1e-6);
-            const errX = Number.isFinite(symFx) && Number.isFinite(numFx) ? Math.abs(symFx - numFx) : NaN;
-            const errY = Number.isFinite(symFy) && Number.isFinite(numFy) ? Math.abs(symFy - numFy) : NaN;
-
-            const table = `
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Quantity</th><th>Value</th></tr></thead>
-                        <tbody>
-                            <tr><td>x</td><td>${escapeHtml(fmtNumber(xv))}</td></tr>
-                            <tr><td>y</td><td>${escapeHtml(fmtNumber(yv))}</td></tr>
-                            <tr><td>u = g(x,y)</td><td>${escapeHtml(fmtNumber(uv))}</td></tr>
-                            <tr><td>v = h(x,y)</td><td>${escapeHtml(fmtNumber(vv))}</td></tr>
-                            <tr><td>f(x,y)</td><td>${escapeHtml(fmtNumber(fv))}</td></tr>
-                            <tr><td>df/dx symbolic</td><td>${escapeHtml(fmtNumber(symFx))}</td></tr>
-                            <tr><td>df/dx numeric</td><td>${escapeHtml(fmtNumber(numFx))}</td></tr>
-                            <tr><td>df/dx error</td><td>${escapeHtml(fmtNumber(errX))}</td></tr>
-                            <tr><td>df/dy symbolic</td><td>${escapeHtml(fmtNumber(symFy))}</td></tr>
-                            <tr><td>df/dy numeric</td><td>${escapeHtml(fmtNumber(numFy))}</td></tr>
-                            <tr><td>df/dy error</td><td>${escapeHtml(fmtNumber(errY))}</td></tr>
-                        </tbody>
-                    </table>
-                </div>`;
-
-            const oldEvaluation = document.getElementById("evaluationCard");
-            if (oldEvaluation) oldEvaluation.remove();
-            resultsGrid.insertAdjacentHTML("beforeend", makeCard("Numerical Evaluation at Point", table, true, "evaluationCard"));
-        }
-
-        function plotContours() {
-            if (!currentSolution) solveComposite();
-            if (!currentSolution) return;
-            clearError();
-            if (!librariesReady(true)) return;
-
-            const xs = [];
-            const ys = [];
-            const count = 55;
-            for (let i = 0; i < count; i++) {
-                const value = -3 + (6 * i) / (count - 1);
-                xs.push(value);
-                ys.push(value);
-            }
-
-            function gridValues(expr) {
-                return ys.map(function(yv) {
-                    return xs.map(function(xv) {
-                        const value = safeEvaluate(expr, { x: xv, y: yv, pi: Math.PI, e: Math.E });
-                        return Number.isFinite(value) && Math.abs(value) < 1e6 ? value : null;
-                    });
-                });
-            }
-
-            const xv = Number(xValue.value);
-            const yv = Number(yValue.value);
-            const markerTrace = Number.isFinite(xv) && Number.isFinite(yv)
-                ? { x: [xv], y: [yv], mode: "markers", type: "scatter", marker: { size: 10, color: "white", line: { color: "#111", width: 2 } }, name: "Selected point" }
-                : null;
-
-            const traces = [
-                { z: gridValues(currentSolution.fxy), x: xs, y: ys, type: "contour", colorscale: "Viridis", contours: { coloring: "heatmap" }, colorbar: { title: "f" }, name: "f(x,y)", xaxis: "x", yaxis: "y" },
-                { z: gridValues(currentSolution.dfDx), x: xs, y: ys, type: "contour", colorscale: "RdBu", contours: { coloring: "heatmap" }, showscale: false, name: "df/dx", xaxis: "x2", yaxis: "y2" },
-                { z: gridValues(currentSolution.dfDy), x: xs, y: ys, type: "contour", colorscale: "RdBu", contours: { coloring: "heatmap" }, showscale: false, name: "df/dy", xaxis: "x3", yaxis: "y3" }
-            ];
-
-            if (markerTrace) {
-                traces.push({ ...markerTrace, xaxis: "x", yaxis: "y", showlegend: false });
-                traces.push({ ...markerTrace, xaxis: "x2", yaxis: "y2", showlegend: false });
-                traces.push({ ...markerTrace, xaxis: "x3", yaxis: "y3", showlegend: false });
-            }
-
-            const layout = {
-                title: "Contour plots of f(x,y), df/dx, and df/dy",
-                grid: { rows: 1, columns: 3, pattern: "independent" },
-                margin: { l: 45, r: 25, t: 55, b: 45 },
-                xaxis: { title: "x" }, yaxis: { title: "y", scaleanchor: "x" },
-                xaxis2: { title: "x" }, yaxis2: { title: "y", scaleanchor: "x2" },
-                xaxis3: { title: "x" }, yaxis3: { title: "y", scaleanchor: "x3" },
-                annotations: [
-                    { text: "f(x,y)", x: 0.13, y: 1.05, xref: "paper", yref: "paper", showarrow: false, font: { size: 13 } },
-                    { text: "df/dx", x: 0.50, y: 1.05, xref: "paper", yref: "paper", showarrow: false, font: { size: 13 } },
-                    { text: "df/dy", x: 0.87, y: 1.05, xref: "paper", yref: "paper", showarrow: false, font: { size: 13 } }
-                ]
-            };
-
-            Plotly.newPlot(plotArea, traces, layout, { responsive: true, displaylogo: false });
-        }
-
-        presetSelect.addEventListener("change", function() {
-            const selected = presets[Number(this.value)];
-            fInput.value = selected.f;
-            uInput.value = selected.u;
-            vInput.value = selected.v;
-            solveComposite();
-        });
-
-        document.getElementById("solveBtn").addEventListener("click", solveComposite);
-        document.getElementById("evaluateBtn").addEventListener("click", evaluatePoint);
-        document.getElementById("plotBtn").addEventListener("click", plotContours);
-        document.getElementById("clearBtn").addEventListener("click", function() {
-            presetSelect.value = "0";
-            fInput.value = presets[0].f;
-            uInput.value = presets[0].u;
-            vInput.value = presets[0].v;
-            xValue.value = "1.5";
-            yValue.value = "0.8";
-            resultsGrid.innerHTML = "";
-            plotArea.innerHTML = "";
-            currentSolution = null;
-            clearError();
-        });
-
-        document.querySelectorAll(".section-card").forEach(function(card) {
-            card.addEventListener("click", function() {
-                document.querySelectorAll(".section-card").forEach(function(item) { item.classList.remove("active"); });
-                document.querySelectorAll(".panel").forEach(function(panel) { panel.classList.remove("active"); });
-                card.classList.add("active");
-                document.getElementById(card.dataset.target).classList.add("active");
-                if (card.dataset.target === "simulation" && !currentSolution) solveComposite();
-            });
-        });
-
-        document.querySelectorAll(".quiz-check").forEach(function(button) {
-            button.addEventListener("click", function() {
-                const quiz = button.closest(".quiz-box");
-                const questions = quiz.querySelectorAll(".question");
-                let score = 0;
-                questions.forEach(function(question) {
-                    const answer = question.dataset.answer;
-                    const checked = question.querySelector("input:checked");
-                    if (checked && checked.value === answer) score += 1;
-                });
-                const scoreBox = quiz.querySelector(".score-box");
-                scoreBox.style.display = "block";
-                scoreBox.textContent = `Score: ${score}/${questions.length}. ${score === questions.length ? "Excellent work." : "Review the theory and try again."}`;
-            });
-        });
-
-        document.getElementById("feedbackBtn").addEventListener("click", function() {
-            const name = document.getElementById("feedbackName").value.trim() || "Student";
-            document.getElementById("feedbackMessage").textContent = `Thank you, ${name}. Your feedback has been recorded for this session.`;
-            document.getElementById("feedbackText").value = "";
-        });
-
-        window.addEventListener("DOMContentLoaded", solveComposite);
-    </script>
-</body>
-</html>
+Skip to main content
+Google Classroom
+Classroom
+MC-E 2025-26
+E&TC E
+Home
+Calendar
+Gemini
+Enrolled
+To-do
+E
+E2 English
+2025-26 Sem II
+D
+Digital Systems E Division
+E
+E2 Life Skills Sem II
+2026-26
+M
+MC-E 2025-26
+E&TC E
+D
+Division E
+Electronics & Telecommunication
+N
+NT 2526
+Electrical Ist year
+B
+BEEE
+E, F division 25-26
+P
+PPS 2025-26
+E Division
+2
+2025-26, Sem-I
+L
+LAUC-E 2025-26
+E&TC
+D
+Div.E IKS 2025-26 Sem 1
+Archived classes
+Settings
+Assignment details
+assignment
+Project
+Ganesh Tarte
+•
+May 21 (Edited May 21)
+15 points
+Due Yesterday
+Everyone Submit your Project link and simulation code here (you can paste it on one word file and then upload it here)
+1 class comment
+
+ATHARVA JALLAWAR • Yesterday
+https://atharva-jallawar.github.io/math_project/
+
+Add class comment…
+
+Your work
+Missing
+composite_partial_diff.py
+Text
+
+Work cannot be turned in after the due date
+Private comments
+"""
+============================================================
+  Interactive Partial Differentiation of Composite Functions
+  Uses: sympy (symbolic), numpy (numerical), matplotlib (plot)
+  Run:  python composite_partial_diff.py
+============================================================
+"""
+
+import sympy as sp
+import numpy as np
+import sys
+
+# ── optional matplotlib ───────────────────────────────────
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.colors as mcolors
+    HAS_PLOT = True
+except ImportError:
+    HAS_PLOT = False
+
+# ─────────────────────────────────────────────────────────
+#  HELPERS
+# ─────────────────────────────────────────────────────────
+
+x, y, u, v, w = sp.symbols('x y u v w', real=True)
+
+ALLOWED = {
+    'sin': sp.sin, 'cos': sp.cos, 'tan': sp.tan,
+    'exp': sp.exp, 'log': sp.log, 'sqrt': sp.sqrt,
+    'abs': sp.Abs, 'pi': sp.pi, 'E': sp.E,
+    'x': x, 'y': y, 'u': u, 'v': v, 'w': w,
+}
+
+PRESETS = [
+    ("f=u³+v²,  u=x²+y,      v=x·sin(y)",
+     "u**3 + v**2", "x**2 + y", "x*sin(y)"),
+    ("f=exp(u)·cos(v),  u=x+y,  v=x*y",
+     "exp(u)*cos(v)", "x + y", "x*y"),
+    ("f=log(u)+v²,  u=x²+y²,  v=x-y",
+     "log(u) + v**2", "x**2 + y**2", "x - y"),
+    ("f=u/v,  u=sin(x),  v=cos(y)",
+     "u/v", "sin(x)", "cos(y)"),
+    ("f=u²·v,  u=x*y,  v=x+y²",
+     "u**2*v", "x*y", "x + y**2"),
+    ("f=sqrt(u+v),  u=x²,  v=y²",
+     "sqrt(u + v)", "x**2", "y**2"),
+]
+
+BANNER = """
+╔══════════════════════════════════════════════════════════╗
+║   Partial Differentiation — Composite Function Solver   ║
+╚══════════════════════════════════════════════════════════╝
+"""
+
+SEP  = "─" * 56
+SEP2 = "═" * 56
+
+
+def clr(text, code):
+    """ANSI colour if terminal supports it."""
+    if sys.stdout.isatty():
+        return f"\033[{code}m{text}\033[0m"
+    return text
+
+def bold(t):  return clr(t, "1")
+def cyan(t):  return clr(t, "36")
+def green(t): return clr(t, "32")
+def yellow(t):return clr(t, "33")
+def red(t):   return clr(t, "31")
+def dim(t):   return clr(t, "2")
+
+
+def parse_expr(text, allowed_syms):
+    """Parse a math string safely with sympy."""
+    try:
+        return sp.sympify(text.strip(), locals=allowed_syms)
+    except Exception as e:
+        raise ValueError(f"Cannot parse '{text}': {e}")
+
+
+def numerical_partial(f_func, var_idx, point, h=1e-6):
+    """Central-difference numerical partial derivative."""
+    p1, p2 = list(point), list(point)
+    p1[var_idx] += h
+    p2[var_idx] -= h
+    try:
+        v1 = float(f_func(*p1))
+        v2 = float(f_func(*p2))
+        return (v1 - v2) / (2 * h)
+    except Exception:
+        return float('nan')
+
+
+def safe_float(expr, subs_dict):
+    try:
+        val = complex(expr.subs(subs_dict).evalf())
+        return val.real if abs(val.imag) < 1e-9 else float('nan')
+    except Exception:
+        return float('nan')
+
+
+# ─────────────────────────────────────────────────────────
+#  CORE SOLVER
+# ─────────────────────────────────────────────────────────
+
+def solve_composite(f_expr, g_expr, h_expr):
+    """
+    Given:
+        f = f(u, v)   (outer)
+        u = g(x, y)   (inner 1)
+        v = h(x, y)   (inner 2)
+    Returns dict with all symbolic partial derivatives.
+    """
+    # ── partial derivatives of outer ──
+    df_du = sp.diff(f_expr, u)
+    df_dv = sp.diff(f_expr, v)
+
+    # ── partial derivatives of inners ──
+    dg_dx = sp.diff(g_expr, x)
+    dg_dy = sp.diff(g_expr, y)
+    dh_dx = sp.diff(h_expr, x)
+    dh_dy = sp.diff(h_expr, y)
+
+    # ── chain rule (with u,v still symbolic) ──
+    df_dx_raw = df_du * dg_dx + df_dv * dh_dx
+    df_dy_raw = df_du * dg_dy + df_dv * dh_dy
+
+    # ── back-substitute u,v ──
+    subs = {u: g_expr, v: h_expr}
+    df_dx = sp.simplify(df_dx_raw.subs(subs))
+    df_dy = sp.simplify(df_dy_raw.subs(subs))
+
+    # ── direct composite for verification ──
+    f_xy   = f_expr.subs(subs)
+    direct_dx = sp.simplify(sp.diff(f_xy, x))
+    direct_dy = sp.simplify(sp.diff(f_xy, y))
+
+    return {
+        "df_du": df_du, "df_dv": df_dv,
+        "dg_dx": dg_dx, "dg_dy": dg_dy,
+        "dh_dx": dh_dx, "dh_dy": dh_dy,
+        "df_dx": df_dx, "df_dy": df_dy,
+        "direct_dx": direct_dx, "direct_dy": direct_dy,
+        "f_xy": f_xy,
+        "match_x": sp.simplify(df_dx - direct_dx) == 0,
+        "match_y": sp.simplify(df_dy - direct_dy) == 0,
+    }
+
+
+# ─────────────────────────────────────────────────────────
+#  DISPLAY
+# ─────────────────────────────────────────────────────────
+
+def display_results(f_expr, g_expr, h_expr, res):
+    print()
+    print(bold(cyan("  Functions")))
+    print(f"  f(u, v) = {f_expr}")
+    print(f"  u = g(x,y) = {g_expr}")
+    print(f"  v = h(x,y) = {h_expr}")
+    print()
+
+    print(bold(cyan("  Step-by-step chain rule")))
+    steps = [
+        ("Step 1", "∂f/∂u",   str(res["df_du"])),
+        ("Step 2", "∂f/∂v",   str(res["df_dv"])),
+        ("Step 3", "∂u/∂x",   str(res["dg_dx"])),
+        ("Step 4", "∂u/∂y",   str(res["dg_dy"])),
+        ("Step 5", "∂v/∂x",   str(res["dh_dx"])),
+        ("Step 6", "∂v/∂y",   str(res["dh_dy"])),
+    ]
+    for label, sym, val in steps:
+        print(f"  {dim(label)}  {yellow(sym):12s} = {val}")
+
+    print()
+    print(bold(cyan("  Chain rule assembly")))
+    print(f"  ∂f/∂x = (∂f/∂u)(∂u/∂x) + (∂f/∂v)(∂v/∂x)")
+    print(f"        = ({res['df_du']})·({res['dg_dx']}) + ({res['df_dv']})·({res['dh_dx']})")
+    print()
+    print(f"  ∂f/∂y = (∂f/∂u)(∂u/∂y) + (∂f/∂v)(∂v/∂y)")
+    print(f"        = ({res['df_du']})·({res['dg_dy']}) + ({res['df_dv']})·({res['dh_dy']})")
+
+    print()
+    print(bold(cyan("  Final results (after back-substitution)")))
+    print(f"  {green('∂f/∂x')} = {res['df_dx']}")
+    print(f"  {green('∂f/∂y')} = {res['df_dy']}")
+
+    print()
+    tick = green("✓ matches") if res["match_x"] else red("✗ mismatch")
+    print(f"  Verification ∂f/∂x: {tick}")
+    tick = green("✓ matches") if res["match_y"] else red("✗ mismatch")
+    print(f"  Verification ∂f/∂y: {tick}")
+
+
+# ─────────────────────────────────────────────────────────
+#  NUMERICAL EVALUATION
+# ─────────────────────────────────────────────────────────
+
+def evaluate_at_point(f_expr, g_expr, h_expr, res):
+    print()
+    print(bold(cyan("  Numerical evaluation at a point")))
+
+    while True:
+        try:
+            raw = input(f"  Enter x value {dim('(e.g. 1.5)')} : ").strip()
+            xv = float(raw)
+            raw = input(f"  Enter y value {dim('(e.g. 0.8)')} : ").strip()
+            yv = float(raw)
+            break
+        except ValueError:
+            print(red("  Please enter valid numbers."))
+
+    subs = {x: xv, y: yv}
+    subs_uv = {u: g_expr.subs(subs), v: h_expr.subs(subs), **subs}
+
+    uv = safe_float(g_expr, subs)
+    vv = safe_float(h_expr, subs)
+    fv = safe_float(res["f_xy"], subs)
+    sym_fx = safe_float(res["df_dx"], subs)
+    sym_fy = safe_float(res["df_dy"], subs)
+
+    f_func = sp.lambdify([x, y], res["f_xy"], "numpy")
+    def f_safe(a, b):
+        try: return float(f_func(a, b))
+        except: return float('nan')
+
+    num_fx = numerical_partial(f_safe, 0, [xv, yv])
+    num_fy = numerical_partial(f_safe, 1, [xv, yv])
+
+    err_x = abs(sym_fx - num_fx) if not (np.isnan(sym_fx) or np.isnan(num_fx)) else float('nan')
+    err_y = abs(sym_fy - num_fy) if not (np.isnan(sym_fy) or np.isnan(num_fy)) else float('nan')
+
+    def fmt(v):
+        return f"{v:.6f}" if not np.isnan(v) else "undefined"
+
+    rows = [
+        ("x",               f"{xv}"),
+        ("y",               f"{yv}"),
+        ("u = g(x,y)",      fmt(uv)),
+        ("v = h(x,y)",      fmt(vv)),
+        ("f(x,y)",          fmt(fv)),
+        ("∂f/∂x (symbolic)", fmt(sym_fx)),
+        ("∂f/∂x (numeric)", fmt(num_fx)),
+        ("∂f/∂x error",     f"{err_x:.2e}" if not np.isnan(err_x) else "—"),
+        ("∂f/∂y (symbolic)", fmt(sym_fy)),
+        ("∂f/∂y (numeric)", fmt(num_fy)),
+        ("∂f/∂y error",     f"{err_y:.2e}" if not np.isnan(err_y) else "—"),
+    ]
+
+    print()
+    print(f"  {'Quantity':<25} {'Value':>15}")
+    print(f"  {SEP}")
+    for label, val in rows:
+        print(f"  {label:<25} {yellow(val):>15}")
+
+    return xv, yv
+
+
+# ─────────────────────────────────────────────────────────
+#  PLOTTING
+# ─────────────────────────────────────────────────────────
+
+def plot_results(f_expr, g_expr, h_expr, res, px=None, py=None):
+    if not HAS_PLOT:
+        print(yellow("  matplotlib not installed — skipping plot."))
+        print(dim("  pip install matplotlib"))
+        return
+
+    f_lam  = sp.lambdify([x, y], res["f_xy"],  "numpy")
+    fx_lam = sp.lambdify([x, y], res["df_dx"], "numpy")
+    fy_lam = sp.lambdify([x, y], res["df_dy"], "numpy")
+
+    xs = np.linspace(-3, 3, 200)
+    ys = np.linspace(-3, 3, 200)
+    X, Y = np.meshgrid(xs, ys)
+
+    def safe_eval(lam, X, Y):
+        with np.errstate(all='ignore'):
+            Z = np.vectorize(lambda a, b: float(lam(a, b)) if np.isfinite(lam(a, b)) else np.nan)(X, Y)
+        return Z
+
+    Z  = safe_eval(f_lam,  X, Y)
+    Zx = safe_eval(fx_lam, X, Y)
+    Zy = safe_eval(fy_lam, X, Y)
+
+    def clip(Z):
+        p1, p99 = np.nanpercentile(Z, 1), np.nanpercentile(Z, 99)
+        return np.clip(Z, p1, p99)
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    fig.suptitle(
+        f"f(u,v) = {f_expr}   |   u = {g_expr}   |   v = {h_expr}",
+        fontsize=11, y=1.01
+    )
+
+    titles = ["f(x, y)", "∂f/∂x", "∂f/∂y"]
+    data   = [clip(Z), clip(Zx), clip(Zy)]
+    cmaps  = ["viridis", "coolwarm", "coolwarm"]
+
+    for ax, title, D, cm in zip(axes, titles, data, cmaps):
+        im = ax.contourf(X, Y, D, levels=40, cmap=cm)
+        ax.contour(X, Y, D, levels=10, colors='k', linewidths=0.3, alpha=0.3)
+        fig.colorbar(im, ax=ax, shrink=0.85)
+        if px is not None and py is not None:
+            ax.plot(px, py, 'wo', markersize=8, markeredgecolor='black', markeredgewidth=1.5)
+        ax.set_title(title, fontsize=12)
+        ax.set_xlabel("x"); ax.set_ylabel("y")
+        ax.set_aspect('equal')
+
+    plt.tight_layout()
+    plt.savefig("composite_partial_diff.png", dpi=130, bbox_inches='tight')
+    print(green("\n  Plot saved → composite_partial_diff.png"))
+    plt.show()
+
+
+# ─────────────────────────────────────────────────────────
+#  MENU HELPERS
+# ─────────────────────────────────────────────────────────
+
+def get_functions_from_user():
+    print(bold(cyan("\n  Enter your composite function")))
+    print(dim("  Supported: +  -  *  /  **  sin  cos  tan  exp  log  sqrt  abs"))
+    print(dim("  Variables: x  y  (inner uses u, v automatically)\n"))
+
+    while True:
+        try:
+            fi = input("  f(u, v)   = ").strip() or "u**3 + v**2"
+            gi = input("  u = g(x,y)= ").strip() or "x**2 + y"
+            hi = input("  v = h(x,y)= ").strip() or "x*sin(y)"
+            fe = parse_expr(fi, ALLOWED)
+            ge = parse_expr(gi, ALLOWED)
+            he = parse_expr(hi, ALLOWED)
+            # quick sanity check
+            fe.subs({u: 1, v: 1})
+            ge.subs({x: 1, y: 1})
+            he.subs({x: 1, y: 1})
+            return fe, ge, he
+        except ValueError as e:
+            print(red(f"  Error: {e}  — try again.\n"))
+
+
+def choose_preset():
+    print(bold(cyan("\n  Preset examples")))
+    for i, (desc, *_) in enumerate(PRESETS, 1):
+        print(f"  {dim(str(i))}.  {desc}")
+    print()
+    while True:
+        ch = input(f"  Choose 1–{len(PRESETS)} : ").strip()
+        try:
+            idx = int(ch) - 1
+            if 0 <= idx < len(PRESETS):
+                _, fi, gi, hi = PRESETS[idx]
+                return (parse_expr(fi, ALLOWED),
+                        parse_expr(gi, ALLOWED),
+                        parse_expr(hi, ALLOWED))
+        except ValueError:
+            pass
+        print(red(f"  Enter a number between 1 and {len(PRESETS)}."))
+
+
+# ─────────────────────────────────────────────────────────
+#  MAIN LOOP
+# ─────────────────────────────────────────────────────────
+
+def main():
+    print(bold(BANNER))
+
+    while True:
+        print(SEP2)
+        print(bold("  Main menu"))
+        print(f"  {cyan('1')}. Enter your own functions")
+        print(f"  {cyan('2')}. Choose a preset example")
+        print(f"  {cyan('3')}. Quit")
+        print()
+        choice = input("  Select option: ").strip()
+
+        if choice == '3':
+            print(dim("\n  Goodbye!\n"))
+            break
+        elif choice == '1':
+            f_expr, g_expr, h_expr = get_functions_from_user()
+        elif choice == '2':
+            f_expr, g_expr, h_expr = choose_preset()
+        else:
+            print(red("  Invalid option.\n"))
+            continue
+
+        print(f"\n{SEP}")
+        print(bold("  Computing …"))
+        print(SEP)
+
+        try:
+            res = solve_composite(f_expr, g_expr, h_expr)
+        except Exception as e:
+            print(red(f"\n  Solver error: {e}\n"))
+            continue
+
+        display_results(f_expr, g_expr, h_expr, res)
+
+        px, py = None, None
+        while True:
+            print(f"\n{SEP}")
+            print(bold("  What next?"))
+            print(f"  {cyan('e')}. Evaluate at a point  (numerical verification)")
+            print(f"  {cyan('p')}. Plot  f, ∂f/∂x, ∂f/∂y  surfaces")
+            print(f"  {cyan('r')}. Solve a new function")
+            print(f"  {cyan('q')}. Quit")
+            sub = input("\n  Option: ").strip().lower()
+
+            if sub == 'e':
+                px, py = evaluate_at_point(f_expr, g_expr, h_expr, res)
+            elif sub == 'p':
+                plot_results(f_expr, g_expr, h_expr, res, px, py)
+            elif sub == 'r':
+                break
+            elif sub == 'q':
+                print(dim("\n  Goodbye!\n"))
+                return
+            else:
+                print(red("  Unrecognised option."))
+
+
+if __name__ == "__main__":
+    main()
+composite_partial_diff.py
+Displaying composite_partial_diff.py.
